@@ -1,2 +1,2 @@
-# sleuth
-Sleuth is a modular library for file type validation.
+# Sleuth
+Sleuth is a modular Laravel library for file type validation.
