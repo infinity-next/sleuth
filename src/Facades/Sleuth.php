@@ -1,4 +1,4 @@
-<?php namespace \InfinityNext\Sleuth\Facades;
+<?php namespace InfinityNext\Sleuth\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
