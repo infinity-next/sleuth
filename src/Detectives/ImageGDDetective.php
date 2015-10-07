@@ -3,14 +3,14 @@
 use InfinityNext\Sleuth\Contracts\DetectiveContract;
 use InfinityNext\Sleuth\Traits\DetectiveTrait;
 
-class ImageDetective implements DetectiveContract
+class ImageGDDetective implements DetectiveContract
 {
 	use DetectiveTrait;
 	
 	/**
 	 * Checks if thise file is a GIF.
 	 *
-	 * @return boolean
+	 * @return boolean|null
 	 */
 	protected function leadGIF()
 	{
@@ -21,13 +21,13 @@ class ImageDetective implements DetectiveContract
 			return $this->closeCase("gif", "image/gif");
 		}
 		
-		return false;
+		return null;
 	}
 	
 	/**
 	 * Checks if thise file is a JPG.
 	 *
-	 * @return boolean
+	 * @return boolean|null
 	 */
 	protected function leadJPG()
 	{
@@ -38,13 +38,13 @@ class ImageDetective implements DetectiveContract
 			return $this->closeCase("jpg", "image/jpg");
 		}
 		
-		return false;
+		return null;
 	}
 	
 	/**
 	 * Checks if thise file is a PNG.
 	 *
-	 * @return boolean
+	 * @return boolean|null
 	 */
 	protected function leadPNG()
 	{
@@ -54,6 +54,38 @@ class ImageDetective implements DetectiveContract
 		{
 			return $this->closeCase("png", "image/png");
 		}
+		
+		return null;
+	}
+	
+	/**
+	 * Checks if the file is a SWF.
+	 *
+	 * @return boolean|null
+	 */
+	protected function leadSWF()
+	{
+		$exif  = exif_imagetype($this->file);
+		$flash = ($exif === IMAGETYPE_SWF || $exif === IMAGETYPE_SWC);
+		
+		if ($exif)
+		{
+			return $this->closeCase("swf", "application/x-shockwave-flash");
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Can this file type potentially cause damage or intrude on a user's privacy?
+	 * This means executable programs, or file formats that can contact remote servers in any way (even SVGs).
+	 *
+	 * @return boolean
+	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
+	 */
+	public function isRisky()
+	{
+		parent::isRisky();
 		
 		return false;
 	}
@@ -65,6 +97,6 @@ class ImageDetective implements DetectiveContract
 	 */
 	public function on()
 	{
-		return true;
+		return function_exists("exif_imagetype");
 	}
 }

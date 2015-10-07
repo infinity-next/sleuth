@@ -219,7 +219,25 @@ trait DetectiveTrait
 	 */
 	protected function leads()
 	{
-		return preg_grep('/^lead(?<ext>[A-Z0-9]+)$/', get_class_methods($this));
+		// Pull a list of methods that have the leadEXT syntax.
+		$leads = preg_grep('/^lead(?<ext>[A-Z0-9]+)$/', get_class_methods($this));
+		// Organize them as an array where keys and values are the same thing.
+		$leads = array_combine($leads, $leads);
+		// Try to find an extension method from our file.
+		$ext   = "lead" . strtoupper(pathinfo($this->file, PATHINFO_EXTENSION));
+		
+		// If that method exists,
+		// bring it to the front of the array so that it is checked first.
+		if (isset($leads[$ext]))
+		{
+			$newLeads = [ $ext => $leads[$ext] ];
+			unset($leads[$ext]);
+			$newLeads += $leads;
+			$leads = $newLeads;
+			unset($newleads);
+		}
+		
+		return $leads;
 	}
 	
 	/**

@@ -1,7 +1,9 @@
 {
 	"name": "infinity-next/sleuth",
-	"keywords": ["file", "type", "mime", "detection"],
+	"keywords": ["file", "type", "mime", "detection", "laravel"],
 	"license": "MIT",
+	"type": "library",
+	
 	"authors": [
 		{
 			"name": "Joshua Moon",
@@ -9,18 +11,16 @@
 			"homepage": "https://jaw.sh"
 		}
 	],
+	
 	"require": {
-		"php": ">=5.5.9",
-		"ext-fileinfo": "*",
-		
-		"illuminate/http": "5.1.*",
-		"illuminate/routing": "5.1.*",
-		"illuminate/session": "5.1.*",
-		"illuminate/support": "5.1.*"
+		"php": ">=5.4.0",
+		"enshrined/svg-sanitize": "0.2.*"
 	},
+	
 	"require-dev": {
 		"mockery/mockery": "~0.9",
 		"phpunit/phpunit": "~4.0"
+	
 	},
 	"autoload": {
 		"psr-4": {

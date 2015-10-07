@@ -1,6 +1,6 @@
 <?php
 
-use \InfinityNext\Sleuth\Detectives\ImageDetective;
+use \InfinityNext\Sleuth\Detectives\ImageGDDetective as ImageDetective;
 
 class ImageGIFTest extends PHPUnit_Framework_TestCase
 {
