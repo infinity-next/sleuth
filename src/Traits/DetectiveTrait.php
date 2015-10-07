@@ -97,7 +97,7 @@ trait DetectiveTrait
 	 */
 	protected function checkLead($lead)
 	{
-		return call_user_method($lead, $this);
+		return call_user_func([$this, $lead]);
 	}
 	
 	/**
