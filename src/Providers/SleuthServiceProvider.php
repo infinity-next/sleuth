@@ -20,8 +20,8 @@ class SleuthServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->app->bindShared(function ($app) {
-			return new FileSleuth(); //$app['config']->get('sleuth'));
+		$this->app->bindShared('sleuth', function() {
+			return new FileSleuth();
 		});
 		
 		$this->app->alias('sleuth', 'InfinityNext\Sleuth\FileSleuth');
