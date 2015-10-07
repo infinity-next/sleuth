@@ -12,6 +12,7 @@ class FileSleuth
 	protected $detectives = [
 		'InfinityNext\Sleuth\Detectives\ImageGDDetective',
 		'InfinityNext\Sleuth\Detectives\ffmpegDetective',
+		'InfinityNext\Sleuth\Detectives\svgDetective',
 	];
 	
 	/**

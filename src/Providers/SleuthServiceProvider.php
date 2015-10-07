@@ -7,16 +7,11 @@ use Illuminate\Support\ServiceProvider;
 class SleuthServiceProvider extends ServiceProvider
 {
 	/**
-	 * Bootstrap the application events.
+	 * Indicates if loading of the provider is deferred.
 	 *
-	 * @return void
+	 * @var bool
 	 */
-	public function boot()
-	{
-		// $this->publishes(array(
-		// 	__DIR__.'/../../config/config.php' => config_path('image.php')
-		// ));
-	}
+	protected $defer = true;
 	
 	/**
 	 * Register the service provider.
@@ -25,29 +20,20 @@ class SleuthServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$app = $this->app;
-		
-		// merge default config
-		// $this->mergeConfigFrom(
-		// 	__DIR__.'/../../config/config.php',
-		// 	'image'
-		// );
-		
-		// create image
-		$app['sleuth'] = $app->share(function ($app) {
+		$this->app->bindShared(function ($app) {
 			return new FileSleuth(); //$app['config']->get('sleuth'));
 		});
 		
-		$app->alias('sleuth', 'InfinityNext\Sleuth\FileSleuth');
+		$this->app->alias('sleuth', 'InfinityNext\Sleuth\FileSleuth');
 	}
 	
-	/**6
+	/**
 	 * Get the services provided by the provider.
 	 *
 	 * @return array
 	 */
 	public function provides()
 	{
-		return array('sleuth');
+		return array('sleuth', 'InfinityNext\Sleuth\FileSleuth');
 	}
 }
