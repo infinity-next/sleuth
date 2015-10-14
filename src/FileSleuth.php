@@ -25,7 +25,7 @@ class FileSleuth
 	/**
 	 * Instantiates the model.
 	 *
-	 * @param  $file  string  Optional parameter to automatically run a check.
+	 * @param  string  $file  Optional parameter to automatically run a check.
 	 * @return null|boolean
 	 */
 	public function __construct($file = null)
@@ -39,17 +39,23 @@ class FileSleuth
 	/**
 	 * Runs the file against all dectives.
 	 *
-	 * @param  $file  string  Optional parameter to automatically run a check.
+	 * @param  string  $file  Optional parameter to automatically run a check.
+	 * @param  string|null  $verify  Extension to verify against. Checks all possible if unset.
 	 * @return null|boolean
 	 */
-	public function check($file)
+	public function check($file, $verify = null)
 	{
+		if (is_string($verify))
+		{
+			$verify = "lead" . strtoupper($verify);
+		}
+		
 		$case = null;
 		
 		foreach ($this->detectives as $detectiveClass)
 		{
 			$detective = new $detectiveClass();
-			$case      = $detective->check($file);
+			$case      = $detective->check($file, $verify);
 			
 			if ($case)
 			{

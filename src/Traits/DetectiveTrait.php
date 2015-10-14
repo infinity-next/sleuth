@@ -57,7 +57,7 @@ trait DetectiveTrait
 	 * Check the the file against our leads.
 	 *
 	 * @param  mixed  $file  File to check.
-	 * @param  string|null  Mime type to verify against. Checks all possible if unset.
+	 * @param  string|null  $verify  Extension to verify against. Checks all possible if unset.
 	 * @return boolean  True if we solved the case, false if not.
 	 */
 	public function check($file, $verify = null)
@@ -66,9 +66,18 @@ trait DetectiveTrait
 		{
 			$leads = $this->leads();
 			
-			foreach ($leads as $lead)
+			if (!is_null($verify))
 			{
-				if (is_null($verify) || $lead === $verify)
+				if (isset($leads[$verify]))
+				{
+					return $this->checkLead($leads[$verify]);
+				}
+				
+				return false;
+			}
+			else
+			{
+				foreach ($leads as $lead)
 				{
 					$results = $this->checkLead($lead);
 					
