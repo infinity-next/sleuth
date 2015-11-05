@@ -226,6 +226,54 @@ class ffmpegDetective implements DetectiveContract
 	}
 	
 	/**
+	 * Checks if the file is a MKA.
+	 *
+	 * @return boolean|null
+	 */
+	protected function leadMKA()
+	{
+		$lead = $this->ffprobeFormat("matroska", "webm");
+		
+		if ($lead === true)
+		{
+			if ($this->ffprobeHasAudio() !== false)
+			{
+				return $this->closeCase("mka", "audio/x-matroska", $this->metadata);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Checks if the file is a MKV.
+	 *
+	 * @return boolean|null
+	 */
+	protected function leadMKV()
+	{
+		$lead = $this->ffprobeFormat("matroska", "webm");
+		
+		if ($lead === true)
+		{
+			if ($this->ffprobeHasVideo() !== false)
+			{
+				return $this->closeCase("mkv", "video/x-matroska", $this->metadata);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		
+		return null;
+	}
+	
+	/**
 	 * Checks if the file is a OGG Audio-only (OGA).
 	 *
 	 * @return boolean|null
