@@ -23,7 +23,7 @@ class ffmpegDetective implements DetectiveContract
 	{
 		if (!isset($this->metadata))
 		{
-			$cmd   = "ffprobe -v quiet -print_format json -show_format -show_streams {$this->file}";
+			$cmd   = env('LIB_FFMPEG', "ffmpeg") . " -v quiet -print_format json -show_format -show_streams {$this->file}";
 			
 			exec($cmd, $output, $returnvalue);
 			
