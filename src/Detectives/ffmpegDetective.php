@@ -98,7 +98,7 @@ class ffmpegDetective implements DetectiveContract
 		{
 			foreach ($this->metadata['streams'] as $streamIndex => $stream)
 			{
-				if (isset($stream['codec_type']) && $stream['codec_type'] === "video")
+				if (isset($stream['codec_type']) && $stream['codec_type'] === "video" && $stream['disposition']['attached_pic'] !== 1)
 				{
 					return $streamIndex;
 				}
