@@ -12,7 +12,7 @@ class SleuthServiceProvider extends ServiceProvider
 	 * @var bool
 	 */
 	protected $defer = true;
-	
+
 	/**
 	 * Register the service provider.
 	 *
@@ -20,13 +20,13 @@ class SleuthServiceProvider extends ServiceProvider
 	 */
 	public function register()
 	{
-		$this->app->bindShared('sleuth', function() {
+		$this->app->singleton('sleuth', function() {
 			return new FileSleuth();
 		});
-		
+
 		$this->app->alias('sleuth', 'InfinityNext\Sleuth\FileSleuth');
 	}
-	
+
 	/**
 	 * Get the services provided by the provider.
 	 *

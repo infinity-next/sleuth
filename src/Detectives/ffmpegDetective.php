@@ -6,43 +6,43 @@ use InfinityNext\Sleuth\Traits\DetectiveTrait;
 class ffmpegDetective implements DetectiveContract
 {
 	use DetectiveTrait;
-	
+
 	/**
 	 * Format types detected by ffprobe.
 	 *
 	 * @var array
 	 */
 	private $formats;
-	
+
 	/**
 	 * Runs an ffprobe on the file or returns cached information.
 	 *
 	 * @return array|false
 	 */
-	private function ffprobe()
+	private function ffprobe($binary = "ffmpeg")
 	{
 		if (!isset($this->metadata))
 		{
-			$cmd   = env('LIB_FFPROBE', "ffprobe") . " -v quiet -print_format json -show_format -show_streams {$this->file}";
-			
+			$cmd   = "{$binary} -v quiet -print_format json -show_format -show_streams {$this->file}";
+
 			exec($cmd, $output, $returnvalue);
-			
+
 			$json = json_decode( implode("\n", $output), true );
-			
+
 			if (!is_array($json))
 			{
 				$json = false;
 			}
-			
+
 			$this->metadata = $json;
-			
+
 			if ($this->ffprobeHasFormat())
 			{
 				$this->formats = array_filter(explode(",", $json['format']['format_name']));
 			}
 		}
 	}
-	
+
 	/**
 	 * Checks requested format against what formats ffprobe returned.
 	 *
@@ -53,11 +53,11 @@ class ffmpegDetective implements DetectiveContract
 	private function ffprobeFormat($format)
 	{
 		$this->ffprobe();
-		
+
 		if (count($this->formats) > 0)
 		{
 			$args = func_get_args();
-			
+
 			foreach ($args as $arg)
 			{
 				if (in_array($arg, $this->formats))
@@ -65,13 +65,13 @@ class ffmpegDetective implements DetectiveContract
 					return true;
 				}
 			}
-			
+
 			return null;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Check our metadata for format name.
 	 *
@@ -83,10 +83,10 @@ class ffmpegDetective implements DetectiveContract
 		{
 			return $this->metadata['format']['format_name'] ?: false;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Check our metadata for a video stream.
 	 *
@@ -104,10 +104,10 @@ class ffmpegDetective implements DetectiveContract
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Check our metadata for an audio stream.
 	 *
@@ -125,10 +125,10 @@ class ffmpegDetective implements DetectiveContract
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Checks if the file is a 3GP.
 	 *
@@ -137,15 +137,15 @@ class ffmpegDetective implements DetectiveContract
 	protected function lead3GP()
 	{
 		$lead = $this->ffprobeFormat("3gp");
-		
+
 		if ($lead === true)
 		{
 			return $this->closeCase("3gp", "video/3gp", $this->metadata);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a AAC
 	 *
@@ -154,15 +154,15 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadAAC()
 	{
 		$lead = $this->ffprobeFormat("aac");
-		
+
 		if ($lead === true)
 		{
 			return $this->closeCase("aac", "audio/aac", $this->metadata);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a FLV.
 	 *
@@ -171,15 +171,15 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadFLV()
 	{
 		$lead = $this->ffprobeFormat("flv");
-		
+
 		if ($lead === true)
 		{
 			return $this->closeCase("flv", "video/x-flv", $this->metadata);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a MP3
 	 *
@@ -188,15 +188,15 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadMP3()
 	{
 		$lead = $this->ffprobeFormat("mp1", "mp2", "mp3", "mpg", "mpeg");
-		
+
 		if ($lead === true)
 		{
 			return $this->closeCase("mp3", "audio/mpeg", $this->metadata);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a MP4.
 	 *
@@ -205,7 +205,7 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadMP4()
 	{
 		$lead = $this->ffprobeFormat("mp4", "m4a");
-		
+
 		if ($lead === true)
 		{
 			if ($this->ffprobeHasVideo() !== false)
@@ -221,10 +221,10 @@ class ffmpegDetective implements DetectiveContract
 				return false;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a MKA.
 	 *
@@ -233,7 +233,7 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadMKA()
 	{
 		$lead = $this->ffprobeFormat("matroska", "webm");
-		
+
 		if ($lead === true)
 		{
 			if ($this->ffprobeHasAudio() !== false)
@@ -245,10 +245,10 @@ class ffmpegDetective implements DetectiveContract
 				return false;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a MKV.
 	 *
@@ -257,7 +257,7 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadMKV()
 	{
 		$lead = $this->ffprobeFormat("matroska", "webm");
-		
+
 		if ($lead === true)
 		{
 			if ($this->ffprobeHasVideo() !== false)
@@ -269,10 +269,10 @@ class ffmpegDetective implements DetectiveContract
 				return false;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a OGG Audio-only (OGA).
 	 *
@@ -281,7 +281,7 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadOGG()
 	{
 		$lead  = $this->ffprobeFormat("ogg", "oga", "ogv");
-		
+
 		if ($lead === true)
 		{
 			if ($this->ffprobeHasVideo() !== false)
@@ -297,10 +297,10 @@ class ffmpegDetective implements DetectiveContract
 				return false;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a WAV
 	 *
@@ -309,15 +309,15 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadWAV()
 	{
 		$lead = $this->ffprobeFormat("wav");
-		
+
 		if ($lead === true)
 		{
 			return $this->closeCase("wav", "audio/wave", $this->metadata);
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Checks if the file is a WEBM.
 	 *
@@ -326,7 +326,7 @@ class ffmpegDetective implements DetectiveContract
 	protected function leadWEBM()
 	{
 		$lead = $this->ffprobeFormat("webm");
-		
+
 		if ($lead === true)
 		{
 			if ($this->ffprobeHasVideo() !== false)
@@ -342,10 +342,10 @@ class ffmpegDetective implements DetectiveContract
 				return false;
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Can this file type potentially cause damage or intrude on a user's privacy?
 	 * This means executable programs, or file formats that can contact remote servers in any way (even SVGs).
@@ -356,10 +356,10 @@ class ffmpegDetective implements DetectiveContract
 	public function isRisky()
 	{
 		parent::isRisky();
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Can the system run this Detective?
 	 *
@@ -369,7 +369,7 @@ class ffmpegDetective implements DetectiveContract
 	{
 		$ffmpeg  = shell_exec("which ffmpeg");
 		$ffprobe = shell_exec("which ffprobe");
-		
+
 		return (empty($ffmpeg) ? false : true) && (empty($ffprobe) ? false : true);
 	}
 }
