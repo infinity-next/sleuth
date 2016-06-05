@@ -10,35 +10,35 @@ trait DetectiveTrait
 	 * @var boolean
 	 */
 	protected $caseClosed = false;
-	
+
 	/**
 	 * Extenson string derived from a closed case.
 	 *
 	 * @var string
 	 */
 	protected $extension;
-	
+
 	/**
 	 * The file this detective is investigating.
 	 *
 	 * @var mixed
 	 */
 	protected $file;
-	
+
 	/**
 	 * Meta data array derived from a closed case.
 	 *
 	 * @var string
 	 */
 	protected $metadata;
-	
+
 	/**
 	 * Mime type string derived from a closed case.
 	 *
 	 * @var string
 	 */
 	protected $mime;
-	
+
 	/**
 	 * Throws an exception if the case is not closed.
 	 *
@@ -52,7 +52,7 @@ trait DetectiveTrait
 			throw new CaseNotSolved;
 		}
 	}
-	
+
 	/**
 	 * Check the the file against our leads.
 	 *
@@ -65,14 +65,14 @@ trait DetectiveTrait
 		if ($this->prepareFile($file))
 		{
 			$leads = $this->leads();
-			
+
 			if (!is_null($verify))
 			{
 				if (isset($leads[$verify]))
 				{
 					return $this->checkLead($leads[$verify]);
 				}
-				
+
 				return false;
 			}
 			else
@@ -80,7 +80,7 @@ trait DetectiveTrait
 				foreach ($leads as $lead)
 				{
 					$results = $this->checkLead($lead);
-					
+
 					// We're sure we've found something.
 					if ($results === true)
 					{
@@ -94,10 +94,10 @@ trait DetectiveTrait
 				}
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Checks the file against a specific lead.
 	 *
@@ -108,7 +108,7 @@ trait DetectiveTrait
 	{
 		return call_user_func([$this, $lead]);
 	}
-	
+
 	/**
 	 * Closes the case by setting protected properties.
 	 *
@@ -125,7 +125,7 @@ trait DetectiveTrait
 		$this->metadata   = $meta;
 		return true;
 	}
-	
+
 	/**
 	 * Return the extension of a solved case.
 	 *
@@ -135,10 +135,10 @@ trait DetectiveTrait
 	public function getExtension()
 	{
 		$this->caseClosedOrFail();
-		
+
 		return $this->extension;
 	}
-	
+
 	/**
 	 * Return any extra information the detective has on this case.
 	 *
@@ -148,10 +148,10 @@ trait DetectiveTrait
 	public function getMetaData()
 	{
 		$this->caseClosedOrFail();
-		
+
 		return $this->metadata;
 	}
-	
+
 	/**
 	 * Return the mime type of a solved case.
 	 *
@@ -161,10 +161,10 @@ trait DetectiveTrait
 	public function getMimeType()
 	{
 		$this->caseClosedOrFail();
-		
+
 		return $this->mime;
 	}
-	
+
 	/**
 	 * Is this file audio?
 	 * This should not return true in the case of archives with audio.
@@ -175,10 +175,10 @@ trait DetectiveTrait
 	public function isAudio()
 	{
 		$this->caseClosedOrFail();
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Are we as sure as we can be that we have solved the case?
 	 *
@@ -188,10 +188,10 @@ trait DetectiveTrait
 	public function isCertain()
 	{
 		$this->caseClosedOrFail();
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Can this file type potentially cause damage or intrude on a user's privacy?
 	 * This means executable programs, or file formats that can contact remote servers in any way (even SVGs).
@@ -202,10 +202,10 @@ trait DetectiveTrait
 	public function isRisky()
 	{
 		$this->caseClosedOrFail();
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Is this file video?
 	 * This should return true even if the video has audio!
@@ -217,10 +217,10 @@ trait DetectiveTrait
 	public function isVideo()
 	{
 		$this->caseClosedOrFail();
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Returns an array of file extensions this detective has leads on.
 	 *
@@ -234,7 +234,7 @@ trait DetectiveTrait
 		$leads = array_combine($leads, $leads);
 		// Try to find an extension method from our file.
 		$ext   = "lead" . strtoupper(pathinfo($this->file, PATHINFO_EXTENSION));
-		
+
 		// If that method exists,
 		// bring it to the front of the array so that it is checked first.
 		if (isset($leads[$ext]))
@@ -245,10 +245,10 @@ trait DetectiveTrait
 			$leads = $newLeads;
 			unset($newleads);
 		}
-		
+
 		return $leads;
 	}
-	
+
 	/**
 	 * Readies the file for investigation.
 	 *
@@ -258,7 +258,7 @@ trait DetectiveTrait
 	public function prepareFile($file)
 	{
 		$this->file = $file;
-		
+
 		return !!$this->file;
 	}
 }

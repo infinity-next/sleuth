@@ -10,7 +10,7 @@ interface DetectiveContract
 	 * @return boolean  True if we solved the case, false if not.
 	 */
 	public function check($file, $verify = null);
-	
+
 	/**
 	 * Return the extension of a solved case.
 	 *
@@ -18,7 +18,7 @@ interface DetectiveContract
 	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
 	 */
 	public function getExtension();
-	
+
 	/**
 	 * Return any extra information the detective has on this case.
 	 *
@@ -26,7 +26,7 @@ interface DetectiveContract
 	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
 	 */
 	public function getMetaData();
-	
+
 	/**
 	 * Return the mime type of a solved case.
 	 *
@@ -34,7 +34,7 @@ interface DetectiveContract
 	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
 	 */
 	public function getMimeType();
-	
+
 	/**
 	 * Is this file audio?
 	 * This should not return true in the case of archives with audio.
@@ -43,7 +43,7 @@ interface DetectiveContract
 	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
 	 */
 	public function isAudio();
-	
+
 	/**
 	 * Are we as sure as we can be that we have solved the case?
 	 *
@@ -51,7 +51,7 @@ interface DetectiveContract
 	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
 	 */
 	public function isCertain();
-	
+
 	/**
 	 * Can this file type potentially cause damage or intrude on a user's privacy?
 	 * This means executable programs, or file formats that can contact remote servers in any way (even SVGs).
@@ -60,7 +60,7 @@ interface DetectiveContract
 	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
 	 */
 	public function isRisky();
-	
+
 	/**
 	 * Is this file video?
 	 * This should return true even if the video has audio!
@@ -70,11 +70,11 @@ interface DetectiveContract
 	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
 	 */
 	public function isVideo();
-	
+
 	/**
 	 * Can the system run this Detective?
 	 *
 	 * @return boolean  True if we can run, False if not.
 	 */
-	public function on();
+	public static function on();
 }

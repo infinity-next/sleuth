@@ -8,6 +8,20 @@ class ffmpegDetective implements DetectiveContract
 	use DetectiveTrait;
 
 	/**
+	 * ffprobe bin
+	 *
+	 * @var string
+	 */
+	 protected static $ffprobe;
+
+	/**
+	 * ffmpeg bin
+	 *
+	 * @var string
+	 */
+	 protected static $ffmpeg;
+
+	/**
 	 * Format types detected by ffprobe.
 	 *
 	 * @var array
@@ -19,8 +33,13 @@ class ffmpegDetective implements DetectiveContract
 	 *
 	 * @return array|false
 	 */
-	private function ffprobe($binary = "ffmpeg")
+	private function ffprobe($binary = null)
 	{
+		if (is_null($binary))
+		{
+			$binary = static::$ffprobe;
+		}
+
 		if (!isset($this->metadata))
 		{
 			$cmd   = "{$binary} -v quiet -print_format json -show_format -show_streams {$this->file}";
@@ -361,15 +380,32 @@ class ffmpegDetective implements DetectiveContract
 	}
 
 	/**
+	 * Fetches binary names.
+	 *
+	 * @return void
+	 */
+	public function __construct()
+	{
+		static::fetchBinaries();
+	}
+
+	public static function fetchBinaries()
+	{
+		if (!isset(static::$ffmpeg))
+		{
+			static::$ffmpeg  = trim(shell_exec("which ffmpeg"));
+			static::$ffprobe = trim(shell_exec("which ffprobe"));
+		}
+	}
+
+	/**
 	 * Can the system run this Detective?
 	 *
 	 * @return boolean  True if we can run, False if not.
 	 */
-	public function on()
+	public static function on()
 	{
-		$ffmpeg  = shell_exec("which ffmpeg");
-		$ffprobe = shell_exec("which ffprobe");
-
-		return (empty($ffmpeg) ? false : true) && (empty($ffprobe) ? false : true);
+		static::fetchBinaries();
+		return (empty(static::$ffmpeg) ? false : true) && (empty(static::$ffprobe) ? false : true);
 	}
 }
