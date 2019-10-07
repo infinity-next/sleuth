@@ -1,8 +1,9 @@
 <?php
 
 use \InfinityNext\Sleuth\Detectives\ImageGDDetective as FlashDetective;
+use \PHPUnit\Framework\TestCase;
 
-class AppSWFTest extends PHPUnit_Framework_TestCase
+class AppSWFTest extends TestCase
 {
 	public function testSWF()
 	{

@@ -1,8 +1,9 @@
 <?php
 
 use \InfinityNext\Sleuth\Detectives\ffmpegDetective as AudioDetective;
+use \PHPUnit\Framework\TestCase;
 
-class AudioOGGTest extends PHPUnit_Framework_TestCase
+class AudioOGGTest extends TestCase
 {
 	public function testOGG()
 	{

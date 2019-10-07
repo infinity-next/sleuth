@@ -1,8 +1,9 @@
 <?php
 
 use \InfinityNext\Sleuth\Detectives\ffmpegDetective as VideoDetective;
+use \PHPUnit\Framework\TestCase;
 
-class VideoWEBMTest extends PHPUnit_Framework_TestCase
+class VideoWEBMTest extends TestCase
 {
 	public function testGood()
 	{

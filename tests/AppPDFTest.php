@@ -1,7 +1,9 @@
 <?php
 
-class AppPDFTest extends PHPUnit_Framework_TestCase
+use \PHPUnit\Framework\TestCase;
+
+class AppPDFTest extends TestCase
 {
-	
-	
+
+
 }

@@ -1,7 +1,9 @@
 <?php
 
-class DocTXTTest extends PHPUnit_Framework_TestCase
+use \PHPUnit\Framework\TestCase;
+
+class DocTXTTest extends TestCase
 {
-	
-	
+
+
 }
