@@ -1,7 +1,8 @@
 <?php
 
 use InfinityNext\Sleuth\Detectives\svgDetective as MarkupDetective;
-use \PHPUnit\Framework\TestCase;
+use InfinityNext\Sleuth\Exceptions\CaseNotSolved;
+use PHPUnit\Framework\TestCase;
 
 class MarkupSVGTest extends TestCase
 {
@@ -17,6 +18,7 @@ class MarkupSVGTest extends TestCase
 	*/
 	public function testException()
 	{
+		$this->expectException(CaseNotSolved::class);
 		$detective = new MarkupDetective;
 		$detective->check(__DIR__ . "/files/normal.png");
 		$detective->getExtension();

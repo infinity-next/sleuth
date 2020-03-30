@@ -1,7 +1,8 @@
 <?php
 
-use \InfinityNext\Sleuth\Detectives\ImageGDDetective as ImageDetective;
-use \PHPUnit\Framework\TestCase;
+use InfinityNext\Sleuth\Detectives\ImageGDDetective as ImageDetective;
+use InfinityNext\Sleuth\Exceptions\CaseNotSolved;
+use PHPUnit\Framework\TestCase;
 
 class ImageGIFTest extends TestCase
 {
@@ -28,6 +29,7 @@ class ImageGIFTest extends TestCase
 	*/
 	public function testException()
 	{
+		$this->expectException(CaseNotSolved::class);
 		$detective = new ImageDetective;
 		$detective->check(__DIR__ . "/files/normal.pdf");
 		$detective->getExtension();
