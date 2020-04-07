@@ -8,7 +8,7 @@ class AudioOGGTest extends TestCase
     public function testOGG()
     {
         $detective = new AudioDetective;
-        $detective->check(__DIR__ . "/files/normal.ogg");
-        $this->assertEquals('ogg', $detective->getExtension());
+        $detective->check(__DIR__ . "/files/normal.flac");
+        $this->assertEquals('flac', $detective->getExtension());
     }
 }

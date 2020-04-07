@@ -5,407 +5,390 @@ use InfinityNext\Sleuth\Traits\DetectiveTrait;
 
 class ffmpegDetective implements DetectiveContract
 {
-	use DetectiveTrait;
+    use DetectiveTrait;
 
-	/**
-	 * ffprobe bin
-	 *
-	 * @var string
-	 */
-	 protected static $ffprobe;
+    /**
+     * ffprobe bin
+     *
+     * @var string
+     */
+     protected static $ffprobe;
 
-	/**
-	 * ffmpeg bin
-	 *
-	 * @var string
-	 */
-	 protected static $ffmpeg;
+    /**
+     * ffmpeg bin
+     *
+     * @var string
+     */
+     protected static $ffmpeg;
 
-	/**
-	 * Format types detected by ffprobe.
-	 *
-	 * @var array
-	 */
-	private $formats;
+    /**
+     * Format types detected by ffprobe.
+     *
+     * @var array
+     */
+    private $formats;
 
-	/**
-	 * Runs an ffprobe on the file or returns cached information.
-	 *
-	 * @return array|false
-	 */
-	private function ffprobe($binary = null)
-	{
-		if (is_null($binary))
-		{
-			$binary = static::$ffprobe;
-		}
+    /**
+     * Runs an ffprobe on the file or returns cached information.
+     *
+     * @return array|false
+     */
+    private function ffprobe($binary = null)
+    {
+        if (is_null($binary)) {
+            $binary = static::$ffprobe;
+        }
 
-		if (!isset($this->metadata))
-		{
-			$cmd   = "{$binary} -v quiet -print_format json -show_format -show_streams {$this->file}";
+        if (!isset($this->metadata))
+        {
+            $cmd   = "{$binary} -v quiet -print_format json -show_format -show_streams {$this->file}";
+            exec($cmd, $output, $returnvalue);
+            $json = json_decode( implode("\n", $output), true );
 
-			exec($cmd, $output, $returnvalue);
+            if (!is_array($json)) {
+                $json = false;
+            }
 
-			$json = json_decode( implode("\n", $output), true );
+            $this->metadata = $json;
 
-			if (!is_array($json))
-			{
-				$json = false;
-			}
+            if ($this->ffprobeHasFormat()) {
+                $this->formats = array_filter(explode(",", $json['format']['format_name']));
+            }
+        }
+    }
 
-			$this->metadata = $json;
+    /**
+     * Checks requested format against what formats ffprobe returned.
+     *
+     * @param  string  $format  The format extenson to check for.
+     * @param  string|null  $format  Option number of additional formats.
+     * @return boolean|null
+     */
+    private function ffprobeFormat($format)
+    {
+        $this->ffprobe();
 
-			if ($this->ffprobeHasFormat())
-			{
-				$this->formats = array_filter(explode(",", $json['format']['format_name']));
-			}
-		}
-	}
+        if (count($this->formats) > 0) {
+            $args = func_get_args();
 
-	/**
-	 * Checks requested format against what formats ffprobe returned.
-	 *
-	 * @param  string  $format  The format extenson to check for.
-	 * @param  string|null  $format  Option number of additional formats.
-	 * @return boolean|null
-	 */
-	private function ffprobeFormat($format)
-	{
-		$this->ffprobe();
+            foreach ($args as $arg) {
+                if (in_array($arg, $this->formats)) {
+                    return true;
+                }
+            }
 
-		if (count($this->formats) > 0)
-		{
-			$args = func_get_args();
+            return null;
+        }
 
-			foreach ($args as $arg)
-			{
-				if (in_array($arg, $this->formats))
-				{
-					return true;
-				}
-			}
+        return false;
+    }
 
-			return null;
-		}
+    /**
+     * Check our metadata for format name.
+     *
+     * @return boolean|string  String if format found, false if none.
+     */
+    private function ffprobeHasFormat()
+    {
+        if (isset($this->metadata['format']['format_name'])) {
+            return $this->metadata['format']['format_name'] ?: false;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Check our metadata for format name.
-	 *
-	 * @return boolean|string  String if format found, false if none.
-	 */
-	private function ffprobeHasFormat()
-	{
-		if (isset($this->metadata['format']['format_name']))
-		{
-			return $this->metadata['format']['format_name'] ?: false;
-		}
+    /**
+     * Check our metadata for a video stream.
+     *
+     * @return boolean|int  Int if video stream index found (CAN BE 0), false if none
+     */
+    private function ffprobeHasVideo()
+    {
+        if (isset($this->metadata['streams'])) {
+            foreach ($this->metadata['streams'] as $streamIndex => $stream) {
+                if (isset($stream['codec_type']) && $stream['codec_type'] === "video" && $stream['disposition']['attached_pic'] !== 1) {
+                    return $streamIndex;
+                }
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Check our metadata for a video stream.
-	 *
-	 * @return boolean|int  Int if video stream index found (CAN BE 0), false if none
-	 */
-	private function ffprobeHasVideo()
-	{
-		if (isset($this->metadata['streams']))
-		{
-			foreach ($this->metadata['streams'] as $streamIndex => $stream)
-			{
-				if (isset($stream['codec_type']) && $stream['codec_type'] === "video" && $stream['disposition']['attached_pic'] !== 1)
-				{
-					return $streamIndex;
-				}
-			}
-		}
+    /**
+     * Check our metadata for an audio stream.
+     *
+     * @return boolean|int  Int if video stream index found (CAN BE 0), false if none
+     */
+    private function ffprobeHasAudio()
+    {
+        if (isset($this->metadata['streams'])) {
+            foreach ($this->metadata['streams'] as $streamIndex => $stream) {
+                if (isset($stream['codec_type']) && $stream['codec_type'] === "audio") {
+                    return $streamIndex;
+                }
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Check our metadata for an audio stream.
-	 *
-	 * @return boolean|int  Int if video stream index found (CAN BE 0), false if none
-	 */
-	private function ffprobeHasAudio()
-	{
-		if (isset($this->metadata['streams']))
-		{
-			foreach ($this->metadata['streams'] as $streamIndex => $stream)
-			{
-				if (isset($stream['codec_type']) && $stream['codec_type'] === "audio")
-				{
-					return $streamIndex;
-				}
-			}
-		}
+    /**
+     * Checks if the file is a 3GP.
+     *
+     * @return boolean|null
+     */
+    protected function lead3GP()
+    {
+        $lead = $this->ffprobeFormat("3gp");
 
-		return false;
-	}
+        if ($lead === true) {
+            return $this->closeCase("3gp", "video/3gp", $this->metadata);
+        }
 
-	/**
-	 * Checks if the file is a 3GP.
-	 *
-	 * @return boolean|null
-	 */
-	protected function lead3GP()
-	{
-		$lead = $this->ffprobeFormat("3gp");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			return $this->closeCase("3gp", "video/3gp", $this->metadata);
-		}
+    /**
+     * Checks if the file is a AAC
+     *
+     * @return boolean|null
+     */
+    protected function leadAAC()
+    {
+        $lead = $this->ffprobeFormat("aac");
 
-		return null;
-	}
+        if ($lead === true) {
+            return $this->closeCase("aac", "audio/aac", $this->metadata);
+        }
 
-	/**
-	 * Checks if the file is a AAC
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadAAC()
-	{
-		$lead = $this->ffprobeFormat("aac");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			return $this->closeCase("aac", "audio/aac", $this->metadata);
-		}
+    /**
+     * Checks if the file is a FLV.
+     *
+     * @return boolean|null
+     */
+    protected function leadFLAC()
+    {
+        $lead = $this->ffprobeFormat("flac");
 
-		return null;
-	}
+        if ($lead === true) {
+            return $this->closeCase("flac", "audio/flac", $this->metadata);
+        }
 
-	/**
-	 * Checks if the file is a FLV.
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadFLV()
-	{
-		$lead = $this->ffprobeFormat("flv");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			return $this->closeCase("flv", "video/x-flv", $this->metadata);
-		}
+    /**
+     * Checks if the file is a FLV.
+     *
+     * @return boolean|null
+     */
+    protected function leadFLV()
+    {
+        $lead = $this->ffprobeFormat("flv");
 
-		return null;
-	}
+        if ($lead === true) {
+            return $this->closeCase("flv", "video/x-flv", $this->metadata);
+        }
 
-	/**
-	 * Checks if the file is a MP3
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadMP3()
-	{
-		$lead = $this->ffprobeFormat("mp1", "mp2", "mp3", "mpg", "mpeg");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			return $this->closeCase("mp3", "audio/mpeg", $this->metadata);
-		}
+    /**
+     * Checks if the file is a MP3
+     *
+     * @return boolean|null
+     */
+    protected function leadMP3()
+    {
+        $lead = $this->ffprobeFormat("mp1", "mp2", "mp3", "mpg", "mpeg");
 
-		return null;
-	}
+        if ($lead === true) {
+            return $this->closeCase("mp3", "audio/mpeg", $this->metadata);
+        }
 
-	/**
-	 * Checks if the file is a MP4.
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadMP4()
-	{
-		$lead = $this->ffprobeFormat("mp4", "m4a");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			if ($this->ffprobeHasVideo() !== false)
-			{
-				return $this->closeCase("mp4", "video/mp4", $this->metadata);
-			}
-			else if ($this->ffprobeHasAudio() !== false)
-			{
-				return $this->closeCase("mp4", "audio/mp4", $this->metadata);
-			}
-			else
-			{
-				return false;
-			}
-		}
+    /**
+     * Checks if the file is a MP4.
+     *
+     * @return boolean|null
+     */
+    protected function leadMP4()
+    {
+        $lead = $this->ffprobeFormat("mp4", "m4a");
 
-		return null;
-	}
+        if ($lead === true) {
+            if ($this->ffprobeHasVideo() !== false) {
+                return $this->closeCase("mp4", "video/mp4", $this->metadata);
+            }
+            else if ($this->ffprobeHasAudio() !== false) {
+                return $this->closeCase("mp4", "audio/mp4", $this->metadata);
+            }
+            else {
+                return false;
+            }
+        }
 
-	/**
-	 * Checks if the file is a MKA.
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadMKA()
-	{
-		$lead = $this->ffprobeFormat("matroska", "webm");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			if ($this->ffprobeHasAudio() !== false)
-			{
-				return $this->closeCase("mka", "audio/x-matroska", $this->metadata);
-			}
-			else
-			{
-				return false;
-			}
-		}
+    /**
+     * Checks if the file is a MKA.
+     *
+     * @return boolean|null
+     */
+    protected function leadMKA()
+    {
+        $lead = $this->ffprobeFormat("matroska", "webm");
 
-		return null;
-	}
+        if ($lead === true) {
+            if ($this->ffprobeHasAudio() !== false) {
+                return $this->closeCase("mka", "audio/x-matroska", $this->metadata);
+            }
+            else {
+                return false;
+            }
+        }
 
-	/**
-	 * Checks if the file is a MKV.
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadMKV()
-	{
-		$lead = $this->ffprobeFormat("matroska", "webm");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			if ($this->ffprobeHasVideo() !== false)
-			{
-				return $this->closeCase("mkv", "video/x-matroska", $this->metadata);
-			}
-			else
-			{
-				return false;
-			}
-		}
+    /**
+     * Checks if the file is a MKV.
+     *
+     * @return boolean|null
+     */
+    protected function leadMKV()
+    {
+        $lead = $this->ffprobeFormat("matroska", "webm");
 
-		return null;
-	}
+        if ($lead === true) {
+            if ($this->ffprobeHasVideo() !== false) {
+                return $this->closeCase("mkv", "video/x-matroska", $this->metadata);
+            }
+            else {
+                return false;
+            }
+        }
 
-	/**
-	 * Checks if the file is a OGG Audio-only (OGA).
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadOGG()
-	{
-		$lead  = $this->ffprobeFormat("ogg", "oga", "ogv");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			if ($this->ffprobeHasVideo() !== false)
-			{
-				return $this->closeCase("ogg", "video/ogg", $this->metadata);
-			}
-			else if ($this->ffprobeHasAudio() !== false)
-			{
-				return $this->closeCase("ogg", "audio/ogg", $this->metadata);
-			}
-			else
-			{
-				return false;
-			}
-		}
+    /**
+     * Checks if the file is a OGG Audio-only (OGA).
+     *
+     * @return boolean|null
+     */
+    protected function leadOGG()
+    {
+        $lead  = $this->ffprobeFormat("ogg", "oga", "ogv");
 
-		return null;
-	}
+        if ($lead === true) {
+            if ($this->ffprobeHasVideo() !== false) {
+                return $this->closeCase("ogg", "video/ogg", $this->metadata);
+            }
+            else if ($this->ffprobeHasAudio() !== false) {
+                return $this->closeCase("ogg", "audio/ogg", $this->metadata);
+            }
+            else {
+                return false;
+            }
+        }
 
-	/**
-	 * Checks if the file is a WAV
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadWAV()
-	{
-		$lead = $this->ffprobeFormat("wav");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			return $this->closeCase("wav", "audio/wave", $this->metadata);
-		}
+    /**
+     * Checks if the file is a WAV
+     *
+     * @return boolean|null
+     */
+    protected function leadWAV()
+    {
+        $lead = $this->ffprobeFormat("wav");
 
-		return null;
-	}
+        if ($lead === true)
+        {
+            return $this->closeCase("wav", "audio/wave", $this->metadata);
+        }
 
-	/**
-	 * Checks if the file is a WEBM.
-	 *
-	 * @return boolean|null
-	 */
-	protected function leadWEBM()
-	{
-		$lead = $this->ffprobeFormat("webm");
+        return null;
+    }
 
-		if ($lead === true)
-		{
-			if ($this->ffprobeHasVideo() !== false)
-			{
-				return $this->closeCase("webm", "video/webm", $this->metadata);
-			}
-			else if ($this->ffprobeHasAudio() !== false)
-			{
-				return $this->closeCase("webm", "audio/webm", $this->metadata);
-			}
-			else
-			{
-				return false;
-			}
-		}
+    /**
+     * Checks if the file is a WEBM.
+     *
+     * @return boolean|null
+     */
+    protected function leadWEBM()
+    {
+        $lead = $this->ffprobeFormat("webm");
 
-		return null;
-	}
+        if ($lead === true)
+        {
+            if ($this->ffprobeHasVideo() !== false)
+            {
+                return $this->closeCase("webm", "video/webm", $this->metadata);
+            }
+            else if ($this->ffprobeHasAudio() !== false)
+            {
+                return $this->closeCase("webm", "audio/webm", $this->metadata);
+            }
+            else
+            {
+                return false;
+            }
+        }
 
-	/**
-	 * Can this file type potentially cause damage or intrude on a user's privacy?
-	 * This means executable programs, or file formats that can contact remote servers in any way (even SVGs).
-	 *
-	 * @return boolean
-	 * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
-	 */
-	public function isRisky()
-	{
-		parent::isRisky();
+        return null;
+    }
 
-		return false;
-	}
+    /**
+     * Can this file type potentially cause damage or intrude on a user's privacy?
+     * This means executable programs, or file formats that can contact remote servers in any way (even SVGs).
+     *
+     * @return boolean
+     * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
+     */
+    public function isRisky()
+    {
+        parent::isRisky();
 
-	/**
-	 * Fetches binary names.
-	 *
-	 * @return void
-	 */
-	public function __construct()
-	{
-		static::fetchBinaries();
-	}
+        return false;
+    }
 
-	public static function fetchBinaries()
-	{
-		if (!isset(static::$ffmpeg))
-		{
-			static::$ffmpeg  = trim(shell_exec("which ffmpeg"));
-			static::$ffprobe = trim(shell_exec("which ffprobe"));
-		}
-	}
+    /**
+     * Fetches binary names.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        static::fetchBinaries();
+    }
 
-	/**
-	 * Can the system run this Detective?
-	 *
-	 * @return boolean  True if we can run, False if not.
-	 */
-	public static function on()
-	{
-		static::fetchBinaries();
-		return (empty(static::$ffmpeg) ? false : true) && (empty(static::$ffprobe) ? false : true);
-	}
+    public static function fetchBinaries()
+    {
+        if (!isset(static::$ffmpeg))
+        {
+            static::$ffmpeg  = trim(shell_exec("which ffmpeg"));
+            static::$ffprobe = trim(shell_exec("which ffprobe"));
+        }
+    }
+
+    /**
+     * Can the system run this Detective?
+     *
+     * @return boolean  True if we can run, False if not.
+     */
+    public static function on()
+    {
+        static::fetchBinaries();
+        return (empty(static::$ffmpeg) ? false : true) && (empty(static::$ffprobe) ? false : true);
+    }
 }
