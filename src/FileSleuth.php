@@ -6,6 +6,7 @@ use InfinityNext\Sleuth\Contracts\DetectiveContract;
 use InfinityNext\Sleuth\Detectives\ImageGDDetective;
 use InfinityNext\Sleuth\Detectives\ffmpegDetective;
 use InfinityNext\Sleuth\Detectives\svgDetective;
+use InfinityNext\Sleuth\Detectives\ImagickDetective;
 
 class FileSleuth
 {
@@ -18,6 +19,7 @@ class FileSleuth
         ImageGDDetective::class,
         ffmpegDetective::class,
         svgDetective::class,
+        ImagickDetective::class,
     ];
 
     /**

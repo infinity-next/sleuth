@@ -28,6 +28,13 @@ trait DetectiveTrait
     protected $file;
 
     /**
+     * The contents of the file this detective is investigating.
+     *
+     * @var mixed
+     */
+    protected $fileContents;
+
+    /**
      * Meta data array derived from a closed case.
      *
      * @var string
@@ -131,6 +138,19 @@ trait DetectiveTrait
         $this->caseClosedOrFail();
 
         return $this->extension;
+    }
+
+    /**
+     * Return any extra information the detective has on this case.
+     *
+     * @return array
+     * @throws \InfinityNext\Sleuth\Exceptions\CaseNotSolved
+     */
+    public function getFileContents()
+    {
+        $this->fileContents = $this->fileContents ?? file_get_contents($this->file);
+
+        return $this->fileContents;
     }
 
     /**

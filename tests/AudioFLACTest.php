@@ -3,7 +3,7 @@
 use \InfinityNext\Sleuth\Detectives\ffmpegDetective as AudioDetective;
 use \PHPUnit\Framework\TestCase;
 
-class AudioOGGTest extends TestCase
+class AudioFLACTest extends TestCase
 {
     public function testOGG()
     {
