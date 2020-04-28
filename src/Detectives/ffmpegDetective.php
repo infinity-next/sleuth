@@ -1,4 +1,6 @@
-<?php namespace InfinityNext\Sleuth\Detectives;
+<?php
+
+namespace InfinityNext\Sleuth\Detectives;
 
 use InfinityNext\Sleuth\Contracts\DetectiveContract;
 use InfinityNext\Sleuth\Traits\DetectiveTrait;
