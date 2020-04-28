@@ -70,7 +70,7 @@ class ffmpegDetective implements DetectiveContract
     {
         $this->ffprobe();
 
-        if (count($this->formats) > 0) {
+        if (is_array($this->formats) && count($this->formats) > 0) {
             $args = func_get_args();
 
             foreach ($args as $arg) {

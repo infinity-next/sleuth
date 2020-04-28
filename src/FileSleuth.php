@@ -3,10 +3,11 @@
 namespace InfinityNext\Sleuth;
 
 use InfinityNext\Sleuth\Contracts\DetectiveContract;
-use InfinityNext\Sleuth\Detectives\ImageGDDetective;
 use InfinityNext\Sleuth\Detectives\ffmpegDetective;
-use InfinityNext\Sleuth\Detectives\svgDetective;
 use InfinityNext\Sleuth\Detectives\ImagickDetective;
+use InfinityNext\Sleuth\Detectives\ImageGDDetective;
+use InfinityNext\Sleuth\Detectives\PlaintextDetective;
+use InfinityNext\Sleuth\Detectives\svgDetective;
 
 class FileSleuth
 {
@@ -17,9 +18,10 @@ class FileSleuth
      */
     protected $detectives = [
         ImageGDDetective::class,
-        ffmpegDetective::class,
         svgDetective::class,
         ImagickDetective::class,
+        PlaintextDetective::class,
+        ffmpegDetective::class,
     ];
 
     /**
